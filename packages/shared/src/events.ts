@@ -6,6 +6,7 @@ export const SocketEvent = {
   ConversationOpenDm: 'conversation:openDm',
   ConversationUpsert: 'conversation:upsert',
   DeviceUpsert: 'device:upsert',
+  DeviceRename: 'device:rename',
 } as const;
 
 export type Ack<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -20,6 +21,10 @@ export interface OpenDmPayload {
   deviceId: string;
 }
 
+export interface RenameDevicePayload {
+  hostname: string;
+}
+
 export interface ServerToClientEvents {
   [SocketEvent.MessageNew]: (message: Message) => void;
   [SocketEvent.ConversationUpsert]: (conversation: Conversation) => void;
@@ -29,6 +34,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   [SocketEvent.MessageSend]: (payload: SendMessagePayload, ack: (res: Ack<Message>) => void) => void;
   [SocketEvent.ConversationOpenDm]: (payload: OpenDmPayload, ack: (res: Ack<Conversation>) => void) => void;
+  [SocketEvent.DeviceRename]: (payload: RenameDevicePayload, ack: (res: Ack<Device>) => void) => void;
 }
 
 export type AckEventName = keyof ClientToServerEvents;

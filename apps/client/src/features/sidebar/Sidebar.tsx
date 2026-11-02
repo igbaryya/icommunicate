@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { StatusDot } from '@/components/ui/status-dot';
 import { conversationOpened, selectActiveConversationId, selectSidebarOpen, selectUnread, sidebarToggled } from '@/features/chat/chatSlice';
 import { DeviceAvatar } from '@/features/devices/components/DeviceAvatar';
+import { OwnDeviceName } from '@/features/devices/components/OwnDeviceName';
 import { getConversationMeta, useDevicesById, useMe, usePeers } from '@/features/devices/hooks';
 import { getConnectionHosts } from '@/features/server/connectionUrls';
 import { ServerInfoDialog } from '@/features/server/ServerInfoDialog';
@@ -121,8 +122,8 @@ export function Sidebar() {
           {me && (
             <div className="flex items-center gap-2.5 px-1">
               <DeviceAvatar device={me} size="lg" showPresence />
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{me.hostname}</p>
+              <div className="min-w-0 flex-1">
+                <OwnDeviceName device={me} />
                 <p className="truncate font-mono text-[11px] text-muted">{me.ip} · you</p>
               </div>
             </div>

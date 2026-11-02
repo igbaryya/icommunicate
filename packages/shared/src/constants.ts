@@ -7,3 +7,4 @@ export const GENERAL_CONVERSATION_ID = 'general';
 export const MESSAGES_PAGE_SIZE = 50;
 export const MAX_MESSAGE_LENGTH = 4000;
 export const MAX_ATTACHMENTS_PER_MESSAGE = 10;
+export const MAX_DEVICE_NAME_LENGTH = 64;

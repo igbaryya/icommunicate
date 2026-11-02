@@ -7,6 +7,7 @@ import {
   type Device,
   type Message,
   type OpenDmPayload,
+  type RenameDevicePayload,
   type SendMessagePayload,
   type ServerInfo,
   type Session,
@@ -58,6 +59,10 @@ export const api = createApi({
     openDm: build.mutation<Conversation, OpenDmPayload>({
       queryFn: (payload) => emitWithAck(SocketEvent.ConversationOpenDm, payload),
     }),
+
+    renameDevice: build.mutation<Device, RenameDevicePayload>({
+      queryFn: (payload) => emitWithAck(SocketEvent.DeviceRename, payload),
+    }),
   }),
 });
 
@@ -69,4 +74,5 @@ export const {
   useGetMessagesInfiniteQuery,
   useSendMessageMutation,
   useOpenDmMutation,
+  useRenameDeviceMutation,
 } = api;
