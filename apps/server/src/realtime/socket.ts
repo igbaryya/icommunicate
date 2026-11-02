@@ -12,6 +12,7 @@ import { devicesRepository, type DeviceRecord } from '../repositories/devices';
 import { chatService } from '../services/chat';
 import { identityService } from '../services/identity';
 import { presenceService } from '../services/presence';
+import { parseRename } from '../services/validation';
 import { AppError } from '../utils/AppError';
 import { isPrivateIp, resolveClientIp } from '../utils/network';
 
@@ -85,6 +86,17 @@ export function createRealtimeServer(httpServer: HttpServer) {
         const { conversation, created } = chatService.openDm(deviceId, payload);
         if (created) audience(conversation).emit(SocketEvent.ConversationUpsert, conversation);
         return conversation;
+      }),
+    );
+
+    socket.on(
+      SocketEvent.DeviceRename,
+      withAck((payload) => {
+        const { hostname } = parseRename(payload);
+        const device = identityService.rename(socket.data.device, hostname);
+        socket.data.device = device;
+        broadcastDevice(device.id);
+        return presenceService.toDevice(device);
       }),
     );
 

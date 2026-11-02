@@ -1,7 +1,9 @@
 import {
   MAX_ATTACHMENTS_PER_MESSAGE,
+  MAX_DEVICE_NAME_LENGTH,
   MAX_MESSAGE_LENGTH,
   type OpenDmPayload,
+  type RenameDevicePayload,
   type SendMessagePayload,
 } from '@icommunicate/shared';
 import { AppError } from '../utils/AppError';
@@ -34,4 +36,18 @@ export function parseSendMessage(payload: unknown): SendMessagePayload {
 export function parseOpenDm(payload: unknown): OpenDmPayload {
   if (!isRecord(payload)) throw new AppError(400, 'Invalid payload');
   return { deviceId: requireString(payload.deviceId, 'deviceId') };
+}
+
+const CONTROL_CHARS = /[\u0000-\u001F\u007F]/;
+
+/** The caller is the only machine this name can be applied to. */
+export function parseRename(payload: unknown): RenameDevicePayload {
+  if (!isRecord(payload)) throw new AppError(400, 'Invalid payload');
+  const hostname = requireString(payload.hostname, 'hostname').trim();
+  if (!hostname) throw new AppError(400, 'Name is required');
+  if (hostname.length > MAX_DEVICE_NAME_LENGTH) {
+    throw new AppError(400, `Names are limited to ${MAX_DEVICE_NAME_LENGTH} characters`);
+  }
+  if (CONTROL_CHARS.test(hostname)) throw new AppError(400, 'Name contains invalid characters');
+  return { hostname };
 }

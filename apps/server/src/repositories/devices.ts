@@ -2,12 +2,13 @@ import { randomUUID } from 'node:crypto';
 import type { Device } from '@icommunicate/shared';
 import { db } from '../db';
 
-export type DeviceRecord = Omit<Device, 'online'>;
+export type DeviceRecord = Omit<Device, 'online'> & { nameCustom: boolean };
 
 interface DeviceRow {
   id: string;
   ip: string;
   hostname: string;
+  name_custom: number;
   first_seen_at: number;
   last_seen_at: number;
 }
@@ -16,6 +17,7 @@ const toRecord = (row: DeviceRow): DeviceRecord => ({
   id: row.id,
   ip: row.ip,
   hostname: row.hostname,
+  nameCustom: row.name_custom === 1,
   firstSeenAt: row.first_seen_at,
   lastSeenAt: row.last_seen_at,
 });
@@ -45,6 +47,7 @@ const statements = {
     'INSERT INTO devices (id, ip, hostname, first_seen_at, last_seen_at) VALUES (?, ?, ?, ?, ?)',
   ),
   updateHostname: db.prepare<[string, string]>('UPDATE devices SET hostname = ? WHERE id = ?'),
+  rename: db.prepare<[string, string]>('UPDATE devices SET hostname = ?, name_custom = 1 WHERE id = ?'),
   updateIp: db.prepare<[string, string]>('UPDATE devices SET ip = ? WHERE id = ?'),
   touch: db.prepare<[number, string]>('UPDATE devices SET last_seen_at = ? WHERE id = ?'),
   deleteById: db.prepare<[string]>('DELETE FROM devices WHERE id = ?'),
@@ -132,11 +135,17 @@ export const devicesRepository = {
     const now = Date.now();
     const id = randomUUID();
     statements.insert.run(id, ip, hostname, now, now);
-    return { id, ip, hostname, firstSeenAt: now, lastSeenAt: now };
+    return { id, ip, hostname, nameCustom: false, firstSeenAt: now, lastSeenAt: now };
   },
 
   updateHostname(id: string, hostname: string) {
     statements.updateHostname.run(hostname, id);
+    return devicesRepository.findById(id);
+  },
+
+  /** Owner-chosen name. Hostname lookup must not replace it. */
+  rename(id: string, hostname: string) {
+    statements.rename.run(hostname, id);
     return devicesRepository.findById(id);
   },
 

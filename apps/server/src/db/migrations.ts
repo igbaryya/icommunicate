@@ -51,6 +51,9 @@ const migrations: string[] = [
   INSERT INTO conversations (id, type, name, created_at)
   VALUES ('${GENERAL_CONVERSATION_ID}', 'channel', 'general', CAST(strftime('%s', 'now') AS INTEGER) * 1000);
   `,
+  `
+  ALTER TABLE devices ADD COLUMN name_custom INTEGER NOT NULL DEFAULT 0;
+  `,
 ];
 
 export function runMigrations(db: Database) {

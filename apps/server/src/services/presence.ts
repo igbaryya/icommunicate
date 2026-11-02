@@ -24,5 +24,12 @@ export const presenceService = {
 
   isOnline: (deviceId: string) => socketsByDevice.has(deviceId),
 
-  toDevice: (record: DeviceRecord): Device => ({ ...record, online: socketsByDevice.has(record.id) }),
+  toDevice: (record: DeviceRecord): Device => ({
+    id: record.id,
+    ip: record.ip,
+    hostname: record.hostname,
+    firstSeenAt: record.firstSeenAt,
+    lastSeenAt: record.lastSeenAt,
+    online: socketsByDevice.has(record.id),
+  }),
 };

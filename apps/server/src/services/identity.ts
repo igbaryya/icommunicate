@@ -1,6 +1,7 @@
 import dns from 'node:dns/promises';
 import os from 'node:os';
 import { devicesRepository, type DeviceRecord } from '../repositories/devices';
+import { AppError } from '../utils/AppError';
 import { getHostAddresses, getLanAddresses, isHostIp, toCanonicalIp } from '../utils/network';
 
 const LOOKUP_TIMEOUT_MS = 2000;
@@ -90,8 +91,18 @@ export const identityService = {
 
   /** Re-resolves the hostname; returns the updated record only when it changed. */
   async refreshHostname(device: DeviceRecord) {
+    if (device.nameCustom) return null;
     const hostname = await resolveHostname(device.ip);
-    if (hostname === device.hostname || hostname === device.ip) return null;
+    const current = devicesRepository.findById(device.id);
+    if (!current || current.nameCustom || hostname === current.hostname || hostname === current.ip) return null;
     return devicesRepository.updateHostname(device.id, hostname);
+  },
+
+  /** Applies a name chosen by this device. The caller must already be that device. */
+  rename(device: DeviceRecord, hostname: string) {
+    if (hostname === device.hostname) return device;
+    const updated = devicesRepository.rename(device.id, hostname);
+    if (!updated) throw new AppError(404, 'Machine not found');
+    return updated;
   },
 };
