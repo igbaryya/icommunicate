@@ -1,0 +1,19 @@
+node_modules
+dist
+storage
+*.log
+
+# Local data, wherever STORAGE_DIR points inside the repo
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite-journal
+
+# Secrets. .env.example is the committed template.
+.env
+.env.*
+!.env.example
+
+.DS_Store
+Thumbs.db
+desktop.ini

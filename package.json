@@ -1,0 +1,20 @@
+{
+  "name": "icommunicate",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c cyan,magenta \"npm run dev -w @icommunicate/server\" \"npm run dev -w @icommunicate/client\"",
+    "build": "npm run build -w @icommunicate/client && npm run build -w @icommunicate/server",
+    "start": "npm run start -w @icommunicate/server",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5",
+    "typescript": "^7.0.2"
+  }
+}
